@@ -1,0 +1,24 @@
+{
+  "name": "wwaz/mimetype-php",
+  "version": "0.1.0",
+  "description": "Determines mimetype of a filepath (string) or file resource",
+  "type": "library",
+  "authors": [
+    {
+      "name": "WWAZ",
+      "homepage": "https://github.com/WWAZ/"
+    }
+  ],
+  "config": {
+    "platform": {
+      "php": "5.2.1"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "wwaz\\Mimetype\\": "src/"
+    }
+  },
+
+  "license": "MIT"
+}
