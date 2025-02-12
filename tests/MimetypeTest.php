@@ -60,4 +60,19 @@ class MimetypeTest extends TestCase
         $mime = Mimetype::fromContentType($filename);
         $this->assertEquals($mime, 'text/plain');
     }
+
+    public function test_getting_mimetype_csv_from_filename()
+    {
+        $filename = 'file.csv';
+        $mime = Mimetype::get($filename);
+        $this->assertEquals($mime, 'text/csv');
+    }
+
+    public function test_getting_mimetype_dmg_from_filename()
+    {
+        $filename = 'file.dmg';
+        $mime = Mimetype::get($filename);
+        print_r($mime);
+        $this->assertEquals($mime, 'application/x-apple-diskimage');
+    }
 }
