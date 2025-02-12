@@ -1,6 +1,6 @@
 {
   "name": "wwaz/mimetype-php",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "Determines mimetype of a filepath (string) or file resource",
   "type": "library",
   "authors": [
@@ -19,7 +19,6 @@
       "wwaz\\Mimetype\\": "src/"
     }
   },
-
   "license": "MIT",
   "require-dev": {
     "phpunit/phpunit": "^11"
