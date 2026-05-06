@@ -1,4 +1,4 @@
-# wwaz/Mimetype
+# mimetype-php
 
 Zero-config MIME type detection for PHP – automatically via file extension or content type.
 
