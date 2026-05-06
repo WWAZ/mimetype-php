@@ -1,83 +1,93 @@
-# mimetype-php
+# wwaz/Mimetype
 
-MIME-Typ für einen Dateipfad oder Dateinamen ermitteln — zuerst über die Endung ([Mimey](https://packagist.org/packages/ralouphie/mimey)), bei Bedarf über den Dateiinhalt (`mime_content_type`). **PHP 8.2+**, MIT.
+Zero-config MIME type detection for PHP – automatically via file extension or content type.
 
-## Schnellstart
+[![PHP](https://img.shields.io/badge/PHP-%3E%3D8.0-blue)](https://php.net)
+
+---
+
+## Quick Start
 
 ```bash
-composer require wwaz/mimetype-php
+composer require wwaz/mimetype
 ```
 
 ```php
-<?php
-
 use wwaz\Mimetype\Mimetype;
 
-$mime = Mimetype::get(__DIR__ . '/uploads/dokument.pdf'); // z. B. "application/pdf"
+echo Mimetype::get('document.pdf');  // → application/pdf
 ```
 
-`get()` ist die Methode für den Alltag: Sie nutzt die Endung und fällt bei fehlendem Mapping (oder fehlender Endung) auf die Inhalts-Erkennung zurück, **wenn die Datei existiert**.
+`get()` first tries detection by file extension. If that fails (missing extension or unknown type), it automatically falls back to content-type analysis – no configuration needed.
 
 ---
 
-## Beispiele
+## API
 
-### 1. Lokale Datei (typischer Upload)
+### `Mimetype::get(string $filename): string|false`
+
+Universal method – the right choice for most cases.
 
 ```php
-use wwaz\Mimetype\Mimetype;
+Mimetype::get('image.png');           // → image/png
+Mimetype::get('/var/upload/avatar');  // → image/jpeg  (via content type)
+Mimetype::get('archive.tar.gz');      // → application/gzip
+```
 
-$path = $request->file('upload')->getRealPath();
-$mime = Mimetype::get($path);
+### `Mimetype::fromPath(string $filename): string|false`
 
-if ($mime === false) {
-    // weder Mapping noch Inhalt erkannt
-} elseif (! in_array($mime, ['image/jpeg', 'image/png'], true)) {
-    // Validierung ...
+Detection **by file extension only**. Throws `MimetypeException` if the extension is missing.
+
+### `Mimetype::fromContentType(string $filename): string|false`
+
+Detection **by PHP `mime_content_type()` only**. The file must exist on the filesystem.
+
+---
+
+## Examples
+
+### 1 – Validate a file upload
+
+```php
+$mime = Mimetype::get($_FILES['upload']['tmp_name']);
+
+$allowed = ['image/jpeg', 'image/png', 'image/webp'];
+
+if (!in_array($mime, $allowed)) {
+    throw new RuntimeException('Only JPEG, PNG and WebP are allowed.');
 }
 ```
 
-### 2. Nur Dateiname — ohne dass die Datei liegen muss
-
-Wenn du nur einen String wie `export.csv` hast und den MIME-Typ für Header oder Validierung brauchst:
+### 2 – Set the Content-Type header
 
 ```php
-$mime = Mimetype::get('Bericht_Q4.csv'); // "text/csv"
+$file = '/var/www/assets/logo.svg';
+header('Content-Type: ' . Mimetype::get($file));
+readfile($file);
 ```
 
-Funktioniert über die Endung; es wird **kein** `file_exists` für die Inhalts-Erkennung gebraucht.
-
-### 3. Nur Endung vs. nur Inhalt
+### 3 – Handle a missing extension gracefully
 
 ```php
-use wwaz\Mimetype\Mimetype;
 use wwaz\Mimetype\Exceptions\MimetypeException;
 
-// Strikt nach Endung (wirft, wenn pathinfo keine Endung hat)
 try {
-    $mime = Mimetype::fromPath('/var/data/backup.tar.gz');
+    $mime = Mimetype::fromPath('mysterious-file');
 } catch (MimetypeException $e) {
-    // z. B. Pfad ohne Extension
+    // Fall back to content-type detection
+    $mime = Mimetype::fromContentType('/path/to/mysterious-file');
 }
-
-// Immer Inhalt — Datei muss existieren und lesbar sein
-$mime = Mimetype::fromContentType('/var/data/datei_ohne_endung');
 ```
 
 ---
 
-## Kurzüberblick
+## Dependencies
 
-| Methode | Wofür |
-|--------|--------|
-| `get($path)` | Standard: Endung, sonst Inhalt (falls Datei da ist) |
-| `fromPath($path)` | Nur Endung; ohne Extension → `MimetypeException` möglich |
-| `fromContentType($path)` | Nur `mime_content_type()`; sonst `false` |
+| Package | Purpose |
+|---|---|
+| [ralouphie/mimey](https://github.com/ralouphie/mimey) | Extensible MIME type database |
+| PHP ≥ 8.0 | `string|bool` union types |
 
-`fromResource()` ist veraltet — bitte `fromContentType()` nutzen.
+---
 
-**Entwicklung:** `composer install` und `composer test`.
-
-## Lizenz
-
-MIT
+MIT © wwaz
